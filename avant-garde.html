@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Digistar Avant-Garde Studio: a playful collage dress-up engine for fashion creators.">
+<title>Digistar Avant-Garde Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@500;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Design tokens (shared across the Digistar site) ===== */
+:root{--bg:#f9f9f9;--ink:#000;--serif:'Bodoni Moda','Didot','Bodoni 72',Georgia,serif;--sans:'Montserrat',system-ui,sans-serif;--ease:cubic-bezier(.2,.8,.2,1);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.55 var(--sans);padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+.skip{position:absolute;left:-999px;top:8px;background:#000;color:#fff;padding:10px 14px;z-index:30}.skip:focus{left:8px}
+:focus-visible{outline:none;box-shadow:0 0 0 2px var(--bg),0 0 0 5px var(--ink)}
+.wrap{max-width:1360px;margin:0 auto;padding:0 16px}
+.top{border-bottom:1px solid #000}.top .wrap{display:flex;justify-content:space-between;align-items:center;padding-top:16px;padding-bottom:16px;gap:16px;flex-wrap:wrap}
+.logo{font:500 24px var(--serif);text-decoration:none;color:inherit}
+nav{display:flex;gap:24px;flex-wrap:wrap}nav a{color:inherit;font:600 11px var(--sans);letter-spacing:.2em;text-transform:uppercase;text-decoration:none;padding:6px 0;border-bottom:1px solid transparent;transition:border-color .25s}
+nav a:hover,nav a[aria-current]{border-color:#000}
+.eyebrow{font:600 11px var(--sans);letter-spacing:.3em;text-transform:uppercase;margin:0 0 12px}
+h1,h2,h3{font-family:var(--serif);font-weight:500;margin:0;line-height:1.05}
+.hero{padding:44px 0 36px}h1{font-size:clamp(40px,9vw,120px);letter-spacing:-.03em}h1 em{font-style:italic;font-weight:400}
+.lead{max-width:600px;margin:28px 0 0}
+.studio{border-top:1px solid #000;display:grid;grid-template-columns:1fr}
+.col{padding:18px 16px;border-bottom:1px solid #000}
+.col h2{font-size:22px;margin-bottom:10px}
+label,.lab{display:block;font:600 10px var(--sans);letter-spacing:.2em;text-transform:uppercase;margin:12px 0 5px}
+input[type=range]{width:100%;accent-color:#000;height:26px}
+input[type=text],select{width:100%;padding:10px;border:1px solid #000;border-radius:0;background:#fff;color:#000;font:400 14px var(--sans)}
+input[type=color]{width:100%;height:40px;padding:2px;border:1px solid #000;border-radius:0;background:#fff;cursor:pointer}
+button,.btn{border:1px solid #000;background:#fff;color:#000;padding:9px 12px;min-height:42px;font:600 10px var(--sans);letter-spacing:.14em;text-transform:uppercase;cursor:pointer;border-radius:0;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:background .25s var(--ease),color .25s var(--ease),transform .25s var(--ease)}
+button:hover,.btn:hover{background:#000;color:#fff;transform:translateY(-2px)}
+button[aria-pressed=true],button[aria-current=true]{background:#000;color:#fff}
+.cta{background:#000;color:#fff;padding:14px 18px}.cta:hover{background:#fff;color:#000}
+.row{display:flex;gap:6px;flex-wrap:wrap}.row>*{flex:1 1 auto}
+.note{font-size:12px;margin:8px 0 0}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.shelf{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.item{flex-direction:column;padding:6px;min-height:92px;font-size:9px;cursor:grab}
+.item canvas{width:64px;height:64px;display:block}
+.stage{padding:16px;display:flex;flex-direction:column;align-items:center;gap:8px;border-bottom:1px solid #000;order:-1}
+#cv{width:100%;max-width:640px;height:auto;aspect-ratio:4/5;border:1px solid #000;background:#fff;touch-action:none;cursor:grab;display:block}
+#cv.over{outline:3px dashed #000;outline-offset:5px}
+.layers{list-style:none;padding:0;margin:0;display:grid;gap:4px;max-height:200px;overflow:auto}
+.layers button{width:100%;justify-content:flex-start;min-height:34px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#f9f9f9;border-top:1px solid #000;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;justify-content:center;z-index:20}
+.bar .cta{flex:1;max-width:380px}
+footer{border-top:1px solid #000;padding:20px 0;font-size:12px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+#modal{position:fixed;inset:0;background:rgba(249,249,249,.97);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:16px;z-index:40}
+#modal img{max-height:72vh;max-width:90vw;border:1px solid #000;background:#fff}
+@media (min-width:640px){.wrap{padding:0 24px}}
+@media (min-width:1040px){.studio{grid-template-columns:310px minmax(0,1fr) 300px}.stage{order:0;border-bottom:0;border-left:1px solid #000;border-right:1px solid #000}.col{border-bottom:0}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+</style></head><body>
+<a class="skip" href="#studio">Skip to the studio</a>
+<header class="top"><div class="wrap"><a class="logo" href="index.html">Digistar ALTERZINC</a>
+<nav aria-label="Main"><a href="index.html" target="_blank" rel="noopener">Studio<span class="sr"> (opens in a new tab)</span></a><a href="digistar-look.html" target="_blank" rel="noopener">Digistar LOOK<span class="sr"> (opens in a new tab)</span></a><a href="#studio" aria-current="page">Avant-Garde</a></nav></div></header>
+<main>
+<section class="wrap hero" aria-labelledby="h"><p class="eyebrow">Digistar Avant-Garde Studio</p><h1 id="h">Dress the <em>caricature.</em></h1>
+<p class="lead">Build a collage-style fashion character. Add a face, snap on garments, stack props, stamps and type, then export in HD. Everything stays in your browser.</p></section>
+
+<div class="wrap" style="padding:0"><section class="studio" id="studio" aria-label="Digistar Avant-Garde Studio">
+<div class="col"><h2>Wardrobe shelves</h2>
+ <div class="tabs" id="tabs" role="group" aria-label="Shelf category"></div>
+ <div id="shelf" class="shelf"></div>
+ <div id="upl" hidden><input type="file" id="file" class="sr" accept="image/jpeg,image/png" aria-label="Upload a portrait">
+  <button type="button" id="pick" class="cta" style="width:100%;margin-top:10px">Upload portrait</button>
+  <p class="note">Auto-crops hair and face and removes plain backgrounds. Works best on portraits with an even backdrop.</p></div>
+ <p class="note" id="msg" aria-live="polite">Click an item to add it, or drag it onto the canvas. Garments and props snap to the figure.</p></div>
+
+<div class="stage"><canvas id="cv" width="1080" height="1350" tabindex="0" role="img" aria-label="Collage canvas. Drag items, or select with the layer list and use arrow keys."></canvas>
+ <p class="note">Tip: drag a garment near the figure to snap it. Drag it far away to detach.</p></div>
+
+<div class="col"><h2>Selected item</h2>
+ <p class="note" id="selname">Nothing selected. Click an item on the canvas.</p>
+ <label for="rot">Rotation <span id="rv">0°</span></label><input type="range" id="rot" min="-180" max="180" value="0">
+ <label for="scl">Size <span id="sv">100%</span></label><input type="range" id="scl" min="20" max="300" value="100">
+ <label for="clr">Colour</label><input type="color" id="clr" value="#ff007f">
+ <div id="txtbox" hidden><label for="txt">Text</label><input type="text" id="txt"><label for="tfont">Font</label><select id="tfont"><option value="Montserrat">Montserrat (bold sans)</option><option value="Bodoni Moda">Bodoni (serif)</option></select></div>
+ <span class="lab">Depth</span><div class="row"><button type="button" id="front">Bring to front</button><button type="button" id="back">Send to back</button></div>
+ <span class="lab">Position</span><div class="row"><button type="button" data-n="0,-1" aria-label="Nudge up">↑</button><button type="button" data-n="0,1" aria-label="Nudge down">↓</button><button type="button" data-n="-1,0" aria-label="Nudge left">←</button><button type="button" data-n="1,0" aria-label="Nudge right">→</button></div>
+ <div class="row" style="margin-top:8px"><button type="button" id="resnap">Re-snap to body</button><button type="button" id="dup">Duplicate</button><button type="button" id="del">Delete</button></div>
+ <label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:13px;font-weight:400"><input type="checkbox" id="snap" checked> Auto-snap to body</label>
+ <h2 style="margin-top:20px">Layers</h2><ul class="layers" id="layers"></ul></div>
+</section></div>
+</main>
+<footer><div class="wrap">© Digistar Frame - AlterZinc · Photos are processed locally in your browser.</div></footer>
+<div class="bar" role="region" aria-label="Export"><button type="button" class="cta" id="export">Export Layout (HD PNG)</button><button type="button" id="clear">Clear</button></div>
+<div id="modal" role="dialog" aria-modal="true" aria-label="Exported image"><img id="out" alt="Your exported layout"><div class="row" style="flex:none"><a class="btn cta" id="dla" download="digistar-avant-garde.png">Download PNG</a><button type="button" id="close">Close</button></div><p class="note">If the download doesn't start, right-click or long-press the image to save it.</p></div>
+
+<script>
+/* ================= CORE ================= */
+const $=id=>document.getElementById(id),cv=$('cv'),ctx=cv.getContext('2d'),W=1080,H=1350,TAU=Math.PI*2;
+const ST={objs:[],sel:null,bg:'stall',uid:0,faces:[],ghost:null};
+const rot=(x,y,a)=>[x*Math.cos(a)-y*Math.sin(a),x*Math.sin(a)+y*Math.cos(a)];
+/** Snap anchors on the avatar skeleton (avatar-local coordinates). */
+const SLOT={face:[0,-300],eyes:[0,-308],top:[0,-80],bottom:[0,200],dress:[0,60],hand:[165,60]};
+const poly=(c,p)=>{c.beginPath();p.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();};
+const paint=(c,col,lw=3)=>{c.fillStyle=col;c.strokeStyle='#000';c.lineWidth=lw;c.lineJoin='round';c.fill();c.stroke();};
+const star=(c,r)=>{poly(c,[...Array(10)].map((_,i)=>{const a=-Math.PI/2+i*Math.PI/5,q=i%2?r*.382:r;return[Math.cos(a)*q,Math.sin(a)*q];}));};
+
+/* ================= ASSET LIBRARY (all vector, drawn in local units) ================= */
+const A={
+ avatar:{n:'Figure',cat:'—',bb:[-135,-360,135,425],col:'#efe7df',d(c,o){c.lineWidth=3;
+  c.beginPath();c.arc(0,-300,52,0,TAU);paint(c,o.color);c.fillStyle=o.color;
+  [[-14,-250,28,45]].forEach(r=>{c.beginPath();c.rect(...r);paint(c,o.color);});
+  poly(c,[[-85,-215],[85,-215],[70,70],[-70,70]]);paint(c,o.color);
+  poly(c,[[-85,-205],[-128,-50],[-102,-40],[-72,-185]]);paint(c,o.color);poly(c,[[85,-205],[128,-50],[102,-40],[72,-185]]);paint(c,o.color);
+  c.beginPath();c.rect(-62,70,50,335);paint(c,o.color);c.beginPath();c.rect(12,70,50,335);paint(c,o.color);
+  c.beginPath();c.ellipse(-40,412,38,13,0,0,TAU);paint(c,'#000');c.beginPath();c.ellipse(40,412,38,13,0,0,TAU);paint(c,'#000');}},
+ blazer:{n:'Oversized blazer',cat:'Clothing',slot:'top',bb:[-180,-150,180,172],col:'#000000',d(c,o){
+  poly(c,[[-70,-145],[70,-145],[135,-125],[178,62],[142,72],[112,-40],[105,172],[-105,172],[-112,-40],[-142,72],[-178,62],[-135,-125]]);paint(c,o.color);
+  c.strokeStyle='#fff';c.lineWidth=3;c.beginPath();c.moveTo(-40,-145);c.lineTo(0,-60);c.lineTo(40,-145);c.moveTo(0,-60);c.lineTo(0,172);c.stroke();}},
+ tee:{n:'Boxy tee',cat:'Clothing',slot:'top',bb:[-152,-148,152,122],col:'#ffffff',d(c,o){
+  poly(c,[[-70,-145],[70,-145],[125,-110],[152,-40],[114,-18],[100,-60],[95,122],[-95,122],[-100,-60],[-114,-18],[-152,-40],[-125,-110]]);paint(c,o.color);}},
+ pants:{n:'Utility pants',cat:'Clothing',slot:'bottom',bb:[-102,-135,102,205],col:'#3a3d32',d(c,o){
+  poly(c,[[-82,-130],[82,-130],[102,205],[14,205],[0,-20],[-14,205],[-102,205]]);paint(c,o.color);
+  c.beginPath();c.rect(-76,-10,34,44);c.rect(42,-10,34,44);c.lineWidth=2;c.stroke();}},
+ dress:{n:'Slip dress',cat:'Clothing',slot:'dress',bb:[-155,-278,155,238],col:'#d6bbff',d(c,o){
+  poly(c,[[-70,-270],[70,-270],[78,-140],[60,-60],[150,236],[-150,236],[-60,-60],[-78,-140]]);paint(c,o.color);}},
+ bag:{n:'Shopping bag',cat:'Props',slot:'hand',bb:[-55,-85,55,85],col:'#ff007f',d(c,o){
+  c.beginPath();c.arc(0,-30,26,Math.PI,0);c.lineWidth=5;c.strokeStyle='#000';c.stroke();c.beginPath();c.rect(-50,-30,100,110);paint(c,o.color);
+  c.fillStyle='#fff';c.font='700 22px Montserrat,sans-serif';c.textAlign='center';c.fillText('D',0,38);}},
+ cart:{n:'Cart',cat:'Props',slot:'hand',bb:[-95,-70,95,80],col:'#d6bbff',d(c,o){
+  poly(c,[[-90,-55],[90,-55],[70,25],[-70,25]]);paint(c,o.color);c.beginPath();c.moveTo(-90,-55);c.lineTo(-100,-70);c.stroke();
+  c.beginPath();c.arc(-45,50,17,0,TAU);paint(c,'#000');c.beginPath();c.arc(45,50,17,0,TAU);paint(c,'#000');}},
+ baguette:{n:'Baguette',cat:'Props',slot:'hand',bb:[-125,-30,125,30],col:'#d9a45b',d(c,o){c.rotate(-.5);c.beginPath();c.ellipse(0,0,120,25,0,0,TAU);paint(c,o.color);
+  c.lineWidth=2;for(let i=-3;i<=3;i++){c.beginPath();c.moveTo(i*30-6,-14);c.lineTo(i*30+6,14);c.stroke();}}},
+ cup:{n:'Coffee cup',cat:'Props',slot:'hand',bb:[-42,-78,42,72],col:'#ffffff',d(c,o){
+  poly(c,[[-36,-40],[36,-40],[28,70],[-28,70]]);paint(c,o.color);c.beginPath();c.rect(-40,-58,80,18);paint(c,'#000');
+  c.beginPath();c.rect(-31,-5,62,32);paint(c,'#ff007f');}},
+ shades:{n:'Futuristic shades',cat:'Props',slot:'eyes',bb:[-70,-28,70,28],col:'#000000',d(c,o){
+  c.beginPath();c.roundRect(-66,-20,132,34,17);paint(c,o.color);c.strokeStyle='#d6bbff';c.lineWidth=3;c.beginPath();c.moveTo(-50,-8);c.lineTo(-20,-8);c.moveTo(20,-8);c.lineTo(50,-8);c.stroke();}},
+ star:{n:'Star',cat:'Stamps',bb:[-72,-72,72,70],col:'#ff007f',d(c,o){star(c,70);paint(c,o.color);}},
+ cloud:{n:'Cloud',cat:'Stamps',bb:[-90,-60,90,50],col:'#ffffff',d(c,o){const cl=()=>{c.beginPath();[[-45,10,34],[-5,-12,44],[42,6,36]].forEach(([x,y,r])=>{c.moveTo(x+r,y);c.arc(x,y,r,0,TAU);});c.rect(-45,10,87,34);};
+  cl();c.lineWidth=8;c.strokeStyle='#000';c.lineJoin='round';c.stroke();c.fillStyle=o.color;c.fill();}},
+ sparkle:{n:'Sparkle',cat:'Stamps',bb:[-72,-72,72,72],col:'#d6bbff',d(c,o){c.beginPath();c.moveTo(0,-70);c.quadraticCurveTo(8,-8,70,0);c.quadraticCurveTo(8,8,0,70);c.quadraticCurveTo(-8,8,-70,0);c.quadraticCurveTo(-8,-8,0,-70);paint(c,o.color);}},
+ frame:{n:'Frame',cat:'Stamps',bb:[-75,-75,75,75],col:'#000000',d(c,o){c.beginPath();c.rect(-65,-65,130,130);c.lineWidth=14;c.strokeStyle=o.color;c.stroke();c.fillStyle=o.color;c.fillRect(55,55,30,30);}},
+ text:{n:'Text',cat:'Text',bb:[-160,-60,160,60],col:'#000000',d(c,o){c.fillStyle=o.color;c.textAlign='center';c.textBaseline='middle';c.font=`700 100px '${o.font}',sans-serif`;c.fillText(o.text,0,0);}}
+};
+/** Backdrops: full-canvas scenes. */
+const BG={
+ stall:{n:'Pop-up stall',d(c){c.fillStyle='#d6bbff';c.fillRect(0,1010,W,340);c.fillStyle='#bcd7ee';c.fillRect(190,820,700,220);c.strokeStyle='#000';c.lineWidth=4;c.strokeRect(190,820,700,220);
+  c.fillStyle='#ffe14d';c.fillRect(870,420,18,420);for(let i=0;i<7;i++){poly(c,[[200+i*100,840],[290+i*100,840],[245+i*100,910]]);paint(c,i%2?'#ff007f':'#ffe14d',2);}
+  [[210,980],[860,980]].forEach(([x,y])=>{c.beginPath();c.arc(x,y,48,0,TAU);paint(c,'#000');});}},
+ arch:{n:'Floral arch',d(c){c.fillStyle='#f3ecff';c.fillRect(0,1000,W,350);
+  for(let i=0;i<46;i++){const a=Math.PI+i/45*Math.PI,x=540+Math.cos(a)*400,y=960+Math.sin(a)*620;c.beginPath();c.arc(x,y,30+(i%3)*8,0,TAU);paint(c,['#ff007f','#d6bbff','#fff'][i%3],3);}}},
+ beach:{n:'Retro beach',d(c){const g=c.createLinearGradient(0,0,0,800);g.addColorStop(0,'#d6bbff');g.addColorStop(1,'#ffc2dd');c.fillStyle=g;c.fillRect(0,0,W,900);
+  c.beginPath();c.arc(780,300,110,0,TAU);paint(c,'#ff8a1f');c.fillStyle='#4aa8ff';c.fillRect(0,820,W,200);c.fillStyle='#f2dca4';c.fillRect(0,1000,W,350);
+  c.fillStyle='#6b3b1b';c.fillRect(190,520,36,500);[[120,470],[230,430],[300,500],[110,540]].forEach(([x,y])=>{c.fillStyle='#32b04a';c.fillRect(x,y,110,44);c.strokeRect(x,y,110,44);});}},
+ runway:{n:'Runway',d(c){c.fillStyle='#f1f1f1';c.fillRect(0,0,W,H);c.fillStyle='#111';poly(c,[[400,560],[680,560],[1180,H],[-100,H]]);c.fill();
+  c.strokeStyle='#fff';c.lineWidth=6;c.setLineDash([40,30]);c.beginPath();c.moveTo(540,560);c.lineTo(540,H);c.stroke();c.setLineDash([]);
+  for(let i=0;i<5;i++){c.beginPath();c.arc(160+i*190,140,34,0,TAU);paint(c,'#ffe14d');}}},
+ plain:{n:'Plain white',d(c){c.fillStyle='#fff';c.fillRect(0,0,W,H);}}};
+
+/* ================= OBJECTS ================= */
+/** Creates an object from an asset id (face ids are 'face:N'). */
+function make(id,x,y){const a=id.startsWith('face:')?faceAsset(id):A[id];
+ return{uid:++ST.uid,id,a,name:a.n,x,y,s:1,r:0,color:a.col,bb:[...a.bb],text:'OUT CIRC S',font:'Montserrat',parent:null,off:null,rs:1,rr:0};}
+const avatar=()=>ST.objs.find(o=>o.id==='avatar');
+const slotWorld=(av,sl)=>{const[rx,ry]=rot(SLOT[sl][0]*av.s,SLOT[sl][1]*av.s,av.r);return[av.x+rx,av.y+ry];};
+/** Snaps an object onto the avatar's matching skeleton slot. */
+function snapTo(o){const av=avatar(),sl=o.a.slot;if(!av||!sl||o===av)return false;
+ o.parent=av.uid;o.off=[...SLOT[sl]];o.rs=1;o.rr=0;syncKids(av);return true;}
+/** Repositions all objects attached to the avatar. */
+function syncKids(av){ST.objs.forEach(o=>{if(o.parent!==av.uid)return;const[rx,ry]=rot(o.off[0]*av.s,o.off[1]*av.s,av.r);o.x=av.x+rx;o.y=av.y+ry;o.s=av.s*o.rs;o.r=av.r+o.rr;});}
+/** Stores an attached object's offset relative to the avatar after the user moves/edits it. */
+function link(o){const av=ST.objs.find(q=>q.uid===o.parent);if(!av)return;const[lx,ly]=rot(o.x-av.x,o.y-av.y,-av.r);
+ o.off=[lx/av.s,ly/av.s];o.rs=o.s/av.s;o.rr=o.r-av.r;}
+function add(id,x,y,snap){const o=make(id,x??W/2,y??H/2);
+ if(o.id==='avatar'){o.x=W/2;o.y=H*.42;o.s=1;}
+ else if(snap!==false&&o.a.slot&&avatar()){ST.objs.push(o);snapTo(o);select(o);list();draw();return o;}
+ else if(x==null){o.x+=(Math.random()-.5)*160;o.y+=(Math.random()-.5)*160;}
+ if(o.id==='text'||o.id.startsWith('face:'))fitBB(o);
+ ST.objs.push(o);select(o);if(snap===true&&x!=null)snapTo(o);list();draw();return o;}
+function fitBB(o){if(o.id==='text'){ctx.font=`700 100px '${o.font}',sans-serif`;const w=ctx.measureText(o.text).width;o.bb=[-w/2-10,-60,w/2+10,60];}}
+
+/* ================= FACE UPLOAD: auto-crop hair + face, remove plain background ================= */
+function faceAsset(id){return ST.faces.find(f=>f.id===id).asset;}
+function autoCrop(img){const m=Math.min(1,360/Math.max(img.width,img.height)),w=Math.round(img.width*m),h=Math.round(img.height*m),c=document.createElement('canvas');c.width=w;c.height=h;
+ const g=c.getContext('2d');g.drawImage(img,0,0,w,h);const im=g.getImageData(0,0,w,h),d=im.data,N=w*h,bk={};let bn=0;
+ const edge=i=>{const p=i*4,k=(d[p]>>5)+','+(d[p+1]>>5)+','+(d[p+2]>>5),o=bk[k]||(bk[k]={n:0,r:0,g:0,b:0});o.n++;o.r+=d[p];o.g+=d[p+1];o.b+=d[p+2];bn++;};
+ for(let x=0;x<w;x++){edge(x);edge((h-1)*w+x);}for(let y=1;y<h-1;y++){edge(y*w);edge(y*w+w-1);}
+ const pal=Object.values(bk).filter(o=>o.n>bn*.04).map(o=>[o.r/o.n,o.g/o.n,o.b/o.n]),near=p=>pal.some(q=>Math.hypot(d[p]-q[0],d[p+1]-q[1],d[p+2]-q[2])<55);
+ const seen=new Uint8Array(N),q=new Int32Array(N);let hd=0,t=0;const push=i=>{if(!seen[i]&&near(i*4)){seen[i]=1;q[t++]=i;}};
+ for(let x=0;x<w;x++){push(x);push((h-1)*w+x);}for(let y=1;y<h-1;y++){push(y*w);push(y*w+w-1);}
+ while(hd<t){const i=q[hd++],x=i%w,p=i*4;for(const j of[x>0?i-1:-1,x<w-1?i+1:-1,i>=w?i-w:-1,i<N-w?i+w:-1]){if(j<0||seen[j])continue;const r=j*4;
+  if(Math.hypot(d[p]-d[r],d[p+1]-d[r+1],d[p+2]-d[r+2])<18&&near(r)){seen[j]=1;q[t++]=j;}}}
+ const ok=t/N>.05&&t/N<.9;let x0=w,y0=h,x1=0,y1=0;
+ for(let i=0;i<N;i++){const fg=ok?!seen[i]:true;d[i*4+3]=fg?255:0;if(fg){const x=i%w,y=(i/w)|0;x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);}}
+ g.putImageData(im,0,0);
+ // crop to the subject, then keep an oval of head + hair (trims shoulders)
+ const bw=x1-x0+1,bh=Math.min(y1-y0+1,bw*1.35),o=document.createElement('canvas');o.width=bw;o.height=Math.round(bh);const og=o.getContext('2d');
+ og.drawImage(c,x0,y0,bw,bh,0,0,bw,bh);og.globalCompositeOperation='destination-in';og.fillStyle='#000';og.beginPath();og.ellipse(bw/2,bh/2,bw/2,bh/2,0,0,TAU);og.fill();
+ return{canvas:o,ok};}
+function addFace(cnv){const id='face:'+(ST.faces.length+1),r=cnv.width/cnv.height,hh=190,ww=Math.min(170,hh*r);
+ const a={n:'Face '+(ST.faces.length+1),cat:'Faces',slot:'face',bb:[-ww/2,-hh/2,ww/2,hh/2],col:'#fff',d(c){c.drawImage(cnv,-ww/2,-hh/2,ww,hh);}};
+ ST.faces.push({id,asset:a,cnv});return id;}
+$('file').onchange=e=>{const f=e.target.files[0];if(!f||!/^image\/(jpeg|png)$/.test(f.type)){$('msg').textContent='Please choose a JPEG or PNG portrait.';return;}
+ const i=new Image();i.onload=()=>{const r=autoCrop(i),id=addFace(r.canvas);shelf('Faces');add(id,undefined,undefined);
+  $('msg').textContent=r.ok?'Face cropped and background removed.':'No plain background found, so the photo was cropped to an oval only.';};i.src=URL.createObjectURL(f);};
+$('pick').onclick=()=>$('file').click();
+
+/* ================= SHELVES ================= */
+const CATS=['Faces','Clothing','Props','Backdrops','Stamps','Text'];
+function thumb(a,isBg,id){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
+ if(isBg){g.scale(128/W,128/W);g.beginPath();g.rect(0,0,W,W);g.clip();a.d(g);return c;}
+ const bw=a.bb[2]-a.bb[0],bh=a.bb[3]-a.bb[1],s=112/Math.max(bw,bh);g.translate(64,64);g.scale(s,s);g.translate(-(a.bb[0]+a.bb[2])/2,-(a.bb[1]+a.bb[3])/2);
+ a.d(g,{color:a.col,text:'OUT CIRC S',font:'Montserrat',s:1});return c;}
+function shelf(cat){document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-pressed',b.textContent===cat));
+ $('upl').hidden=cat!=='Faces';const box=$('shelf');box.innerHTML='';
+ if(cat==='Backdrops')Object.entries(BG).forEach(([k,b])=>item(box,b.n,thumb(b,true),()=>{ST.bg=k;draw();},null));
+ else{const ids=cat==='Faces'?ST.faces.map(f=>f.id):Object.keys(A).filter(k=>A[k].cat===cat);
+  ids.forEach(k=>{const a=k.startsWith('face:')?faceAsset(k):A[k];item(box,a.n,thumb(a),()=>add(k),k);});
+  if(cat==='Faces'&&!ids.length)box.innerHTML='<p class="note" style="grid-column:1/-1">Upload a portrait below to create your first face.</p>';}}
+function item(box,name,cnv,fn,dragId){const b=document.createElement('button');b.type='button';b.className='item';b.append(cnv,name);b.onclick=fn;
+ if(dragId){b.draggable=true;b.ondragstart=e=>e.dataTransfer.setData('text/plain',dragId);}box.append(b);}
+CATS.forEach(c=>{const b=document.createElement('button');b.type='button';b.textContent=c;b.onclick=()=>shelf(c);$('tabs').append(b);});
+
+/* ================= RENDER ================= */
+/** Draws the whole scene. `scale` > 1 for HD export; `ui` adds selection handles. */
+function render(g,scale,ui){g.setTransform(scale,0,0,scale,0,0);g.fillStyle='#fff';g.fillRect(0,0,W,H);g.save();BG[ST.bg].d(g);g.restore();
+ ST.objs.forEach(o=>{g.save();g.translate(o.x,o.y);g.rotate(o.r);g.scale(o.s,o.s);g.textBaseline='alphabetic';o.a.d(g,o);g.restore();});
+ if(ui){const av=avatar();if(ST.ghost&&av){const[x,y]=slotWorld(av,ST.ghost);g.beginPath();g.arc(x,y,40,0,TAU);g.lineWidth=4;g.setLineDash([10,8]);g.strokeStyle='#ff007f';g.stroke();g.setLineDash([]);}
+  const o=ST.sel;if(o){g.save();g.translate(o.x,o.y);g.rotate(o.r);g.scale(o.s,o.s);g.lineWidth=3/o.s;g.setLineDash([12/o.s,8/o.s]);g.strokeStyle='#000';
+   g.strokeRect(o.bb[0],o.bb[1],o.bb[2]-o.bb[0],o.bb[3]-o.bb[1]);g.restore();}}}
+const draw=()=>render(ctx,1,true);
+
+/* ================= INTERACTION ================= */
+const pos=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H];};
+const hit=(o,px,py)=>{let[x,y]=rot(px-o.x,py-o.y,-o.r);x/=o.s;y/=o.s;return x>=o.bb[0]&&x<=o.bb[2]&&y>=o.bb[1]&&y<=o.bb[3];};
+let drag=null;
+cv.addEventListener('pointerdown',e=>{const[px,py]=pos(e);let f=null;for(let i=ST.objs.length-1;i>=0;i--)if(hit(ST.objs[i],px,py)){f=ST.objs[i];break;}
+ select(f);if(f){drag={o:f,px,py};cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing';}draw();});
+cv.addEventListener('pointermove',e=>{if(!drag)return;const[px,py]=pos(e),o=drag.o,dx=px-drag.px,dy=py-drag.py;drag.px=px;drag.py=py;o.x+=dx;o.y+=dy;
+ const av=avatar();if(o===av)syncKids(av);else if(o.parent){link(o);const[sx,sy]=slotWorld(av,o.a.slot);if(Math.hypot(o.x-sx,o.y-sy)>260*av.s)o.parent=null;}
+ ST.ghost=null;if(av&&o!==av&&!o.parent&&o.a.slot&&$('snap').checked){const[sx,sy]=slotWorld(av,o.a.slot);if(Math.hypot(o.x-sx,o.y-sy)<120)ST.ghost=o.a.slot;}draw();});
+const endDrag=()=>{if(!drag)return;const o=drag.o;if(ST.ghost){snapTo(o);$('msg').textContent=o.name+' snapped to the figure.';}ST.ghost=null;drag=null;cv.style.cursor='grab';updateUI();draw();};
+cv.addEventListener('pointerup',endDrag);cv.addEventListener('pointercancel',endDrag);
+cv.addEventListener('keydown',e=>{const o=ST.sel;if(!o)return;const st=e.shiftKey?20:4;
+ if(e.key.startsWith('Arrow')){e.preventDefault();nudge(e.key==='ArrowLeft'?-st:e.key==='ArrowRight'?st:0,e.key==='ArrowUp'?-st:e.key==='ArrowDown'?st:0);}
+ else if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();del();}});
+cv.addEventListener('dragover',e=>{e.preventDefault();cv.classList.add('over');});cv.addEventListener('dragleave',()=>cv.classList.remove('over'));
+cv.addEventListener('drop',e=>{e.preventDefault();cv.classList.remove('over');const id=e.dataTransfer.getData('text/plain');if(!id||(!A[id]&&!id.startsWith('face:')))return;const[px,py]=pos(e);add(id,px,py,true);});
+
+/* ================= TOOLKIT ================= */
+function select(o){ST.sel=o;updateUI();list();}
+function updateUI(){const o=ST.sel;$('selname').textContent=o?'Editing: '+o.name+(o.parent?' (snapped)':''):'Nothing selected. Click an item on the canvas.';
+ if(!o)return;const r=Math.round(((o.r*180/Math.PI+540)%360)-180);$('rot').value=r;$('rv').textContent=r+'°';$('scl').value=Math.round(o.s*100);$('sv').textContent=Math.round(o.s*100)+'%';
+ $('clr').value=/^#[0-9a-f]{6}$/i.test(o.color)?o.color:'#000000';$('txtbox').hidden=o.id!=='text';if(o.id==='text'){$('txt').value=o.text;$('tfont').value=o.font;}}
+const after=o=>{if(o.id==='avatar')syncKids(o);else if(o.parent)link(o);updateUI();draw();};
+$('rot').oninput=e=>{if(!ST.sel)return;ST.sel.r=+e.target.value*Math.PI/180;after(ST.sel);};
+$('scl').oninput=e=>{if(!ST.sel)return;ST.sel.s=+e.target.value/100;after(ST.sel);};
+$('clr').oninput=e=>{if(ST.sel&&ST.sel.id.indexOf('face:')!==0){ST.sel.color=e.target.value;draw();}};
+$('txt').oninput=e=>{const o=ST.sel;if(o&&o.id==='text'){o.text=e.target.value||' ';fitBB(o);draw();}};
+$('tfont').onchange=e=>{const o=ST.sel;if(o&&o.id==='text'){o.font=e.target.value;fitBB(o);draw();}};
+$('front').onclick=()=>{const o=ST.sel;if(!o)return;ST.objs=ST.objs.filter(q=>q!==o);ST.objs.push(o);list();draw();};
+$('back').onclick=()=>{const o=ST.sel;if(!o)return;ST.objs=ST.objs.filter(q=>q!==o);ST.objs.unshift(o);list();draw();};
+function nudge(dx,dy){const o=ST.sel;if(!o)return;o.x+=dx;o.y+=dy;after(o);}
+document.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{const[x,y]=b.dataset.n.split(',').map(Number);nudge(x*4,y*4);});
+$('resnap').onclick=()=>{const o=ST.sel;if(o&&snapTo(o)){updateUI();draw();$('msg').textContent=o.name+' re-snapped.';}else $('msg').textContent='This item has no body slot to snap to.';};
+$('dup').onclick=()=>{const o=ST.sel;if(!o||o.id==='avatar')return;const n={...o,uid:++ST.uid,x:o.x+30,y:o.y+30,bb:[...o.bb],parent:null,off:null};ST.objs.push(n);select(n);draw();};
+function del(){const o=ST.sel;if(!o)return;ST.objs=ST.objs.filter(q=>q!==o&&q.parent!==o.uid);ST.objs.forEach(q=>{if(q.parent===o.uid)q.parent=null;});ST.sel=null;list();updateUI();draw();}
+$('del').onclick=del;
+function list(){const ul=$('layers');ul.innerHTML='';[...ST.objs].reverse().forEach(o=>{const li=document.createElement('li'),b=document.createElement('button');b.type='button';b.textContent=o.name+(o.id==='text'?': '+o.text:'');
+ b.setAttribute('aria-current',o===ST.sel);b.onclick=()=>{select(o);draw();};li.append(b);ul.append(li);});}
+$('clear').onclick=()=>{ST.objs=[];ST.sel=null;add('avatar');};
+
+/* ================= EXPORT (2x = 2160 × 2700, vector redraw) ================= */
+$('export').onclick=()=>{const c=document.createElement('canvas');c.width=W*2;c.height=H*2;render(c.getContext('2d'),2,false);
+ c.toBlob(b=>{const u=URL.createObjectURL(b);$('out').src=u;$('dla').href=u;$('modal').style.display='flex';$('dla').focus();},'image/png');};
+$('close').onclick=()=>{$('modal').style.display='none';$('export').focus();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('close').click();});
+
+/* ================= INIT ================= */
+shelf('Clothing');add('avatar');
+const b0=add('text',W/2,230,false);b0.s=1.4;b0.text='OUT CIRC S';fitBB(b0);select(null);list();draw();
+document.fonts.ready.then(()=>{ST.objs.filter(o=>o.id==='text').forEach(fitBB);shelf('Clothing');draw();});
+</script></body></html>
