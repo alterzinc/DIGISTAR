@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Digistar LOOK AlterZinc: edit your OOTD photo, pick a sub-aesthetic and find the pieces locally and online.">
+<title>Digistar LOOK AlterZinc</title>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@500;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Design tokens (shared with Digistar Frame - AlterZinc) ===== */
+:root{--bg:#f9f9f9;--ink:#000;--paper:#fff;--serif:'Bodoni Moda','Didot','Bodoni 72',Georgia,serif;--sans:'Montserrat',system-ui,sans-serif;--ease:cubic-bezier(.2,.8,.2,1);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.55 var(--sans);padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+.skip{position:absolute;left:-999px;top:8px;background:#000;color:#fff;padding:10px 14px;z-index:30}.skip:focus{left:8px}
+:focus-visible{outline:none;box-shadow:0 0 0 2px var(--bg),0 0 0 5px var(--ink)}
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px}
+.top{border-bottom:1px solid #000}.top .wrap{display:flex;justify-content:space-between;align-items:center;padding-top:16px;padding-bottom:16px;gap:16px;flex-wrap:wrap}
+.logo{font:500 24px var(--serif);text-decoration:none;color:inherit}
+nav{display:flex;gap:24px}nav a{color:inherit;font:600 11px var(--sans);letter-spacing:.2em;text-transform:uppercase;text-decoration:none;padding:6px 0;border-bottom:1px solid transparent;transition:border-color .25s}
+nav a:hover,nav a[aria-current]{border-color:#000}
+.eyebrow{font:600 11px var(--sans);letter-spacing:.3em;text-transform:uppercase;margin:0 0 12px}
+h1,h2,h3{font-family:var(--serif);font-weight:500;margin:0;line-height:1}
+.hero{padding:48px 0 40px}
+h1{font-size:clamp(46px,11vw,150px);line-height:1.05;letter-spacing:-.03em;text-transform:none}
+h1 em{font-style:italic;font-weight:400}
+.lead{max-width:560px;margin:32px 0 0}
+.work{border-top:1px solid #000;display:grid;grid-template-columns:1fr}
+.panel{padding:20px 16px;border-bottom:1px solid #000}
+.panel h2{font-size:24px;margin-bottom:12px}
+label,.lab{display:block;font:600 10px var(--sans);letter-spacing:.2em;text-transform:uppercase;margin:12px 0 5px}
+.row{display:flex;justify-content:space-between;gap:8px}
+input[type=range]{width:100%;accent-color:#000;height:26px}
+button,.btn{border:1px solid #000;background:#fff;color:#000;padding:9px 14px;min-height:42px;font:600 10px var(--sans);letter-spacing:.16em;text-transform:uppercase;cursor:pointer;border-radius:0;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:background .25s var(--ease),color .25s var(--ease),transform .25s var(--ease)}
+button:hover,.btn:hover{background:#000;color:#fff;transform:translateY(-2px)}
+button:active{transform:translateY(0)}
+button[aria-pressed=true],button.on{background:#000;color:#fff}
+.cta{background:#000;color:#fff;padding:14px 18px}.cta:hover{background:#fff;color:#000}
+.note{font-size:12px;margin:8px 0 0}
+/* upload + canvas */
+.drop{border:1px dashed #000;padding:22px;text-align:center;background:#fff;cursor:pointer;transition:background .25s,transform .25s var(--ease)}
+.drop:hover,.drop.drag{background:#000;color:#fff;transform:scale(1.01)}
+.drop strong{display:block;font:500 22px var(--serif)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.stage{padding:16px;display:flex;flex-direction:column;align-items:center;gap:10px;border-bottom:1px solid #000}
+#cv{max-width:100%;max-height:70vh;border:1px solid #000;background:#fff;display:block}
+/* filter tray */
+.tray{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scroll-snap-type:x proximity}
+.tray button{flex:0 0 auto;scroll-snap-align:start}
+.tools{display:grid;gap:8px}
+.tool{justify-content:space-between;width:100%}
+.tool .st{font-weight:400;letter-spacing:.1em}
+.spin{width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .7s linear infinite;display:none}
+.tool[aria-busy=true] .spin{display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* archetype */
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.advice{border:1px solid #000;background:#fff;padding:18px;margin-top:14px;animation:fade .45s var(--ease)}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}}
+.advice h3{font-size:26px;margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;padding:0;list-style:none}
+.chips li{border:1px solid #000;padding:4px 10px;font:600 10px var(--sans);letter-spacing:.12em;text-transform:uppercase}
+.pal{display:flex;gap:0;margin:8px 0}.pal span{width:44px;height:28px;border:1px solid #000;margin-right:-1px}
+.advice ul.tips{margin:6px 0 0;padding-left:18px}
+.shop{padding:24px 16px 8px}
+.grid{display:grid;gap:14px;grid-template-columns:1fr;margin-top:14px}
+.card{border:1px solid #000;background:#fff;display:flex;flex-direction:column;transition:transform .3s var(--ease),box-shadow .3s var(--ease);animation:fade .45s var(--ease)}
+.card:hover{transform:translateY(-4px);box-shadow:6px 6px 0 #000}
+.card img{width:100%;aspect-ratio:1;display:block;border-bottom:1px solid #000}
+.card div{padding:14px;display:flex;flex-direction:column;gap:8px;flex:1}
+.card h3{font-size:20px}.price{font:600 14px var(--sans)}
+.tag{align-self:flex-start;border:1px solid #000;padding:3px 8px;font:600 9px var(--sans);letter-spacing:.14em;text-transform:uppercase}
+.card .cta{margin-top:auto}
+.finder{display:flex;flex-wrap:wrap;gap:8px 20px;margin:16px 0 24px}
+.finder a{color:inherit;font-weight:600}
+/* sticky action bar */
+.bar{position:fixed;left:0;right:0;bottom:0;background:#f9f9f9;border-top:1px solid #000;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;justify-content:center;z-index:20}
+.bar .cta{flex:1;max-width:360px}.bar button:not(.cta){flex:0 1 200px}
+footer{border-top:1px solid #000;padding:20px 0;font-size:12px}
+#modal{position:fixed;inset:0;background:rgba(249,249,249,.97);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:16px;z-index:40}
+#modal img{max-height:72vh;max-width:90vw;border:1px solid #000}
+@media (min-width:640px){.grid{grid-template-columns:repeat(3,1fr)}.wrap{padding:0 24px}.panel{padding:24px}.shop{padding:32px 24px 8px}}
+@media (min-width:960px){.work{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}.left{position:sticky;top:0;align-self:start;border-right:1px solid #000;max-height:100vh;overflow:auto}.stage{border-bottom:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style></head><body>
+<a class="skip" href="#work">Skip to the editor</a>
+<header class="top"><div class="wrap"><a class="logo" href="index.html">Digistar ALTERZINC</a>
+<nav aria-label="Main"><a href="index.html" target="_blank" rel="noopener">Studio<span class="sr"> (opens in a new tab)</span></a><a href="#work" aria-current="page">Digistar LOOK</a><a href="#shop">Shop</a></nav></div></header>
+
+<main>
+<section class="wrap hero" aria-labelledby="h"><p class="eyebrow">AlterZinc · Edit · Style · Shop</p>
+<h1 id="h">Digistar LOOK <em>AlterZinc</em></h1>
+<p class="lead">Upload your outfit photo, tune the light, choose your sub-aesthetic and find the pieces near you or online. Editing happens in your browser; your photo is never uploaded.</p></section>
+
+<div class="wrap" style="padding:0"><div class="work" id="work">
+ <div class="left">
+  <div class="panel"><h2>1. Upload</h2>
+   <label class="drop" id="drop" for="file"><strong>Drop a JPEG or PNG</strong>or tap to choose a photo</label>
+   <input type="file" id="file" class="sr" accept="image/jpeg,image/png"><p class="note" id="msg" aria-live="polite">Showing a demo scene until you add a photo.</p></div>
+  <div class="stage"><canvas id="cv" width="800" height="1000" role="img" aria-label="Photo preview with live edits"></canvas>
+   <button type="button" id="hold">Hold to compare original</button></div>
+ </div>
+ <div class="right">
+  <div class="panel"><h2>2. Filters</h2>
+   <div class="tray" id="tray" role="group" aria-label="Preset filters">
+    <button type="button" data-f="street" aria-pressed="false">Streetwear Grain</button><button type="button" data-f="minimal" aria-pressed="false">Minimalist Clean</button><button type="button" data-f="golden" aria-pressed="false">Golden Hour Glow</button><button type="button" data-f="y2k" aria-pressed="false">Y2K Flash</button></div>
+   <div id="sliders"></div><button type="button" id="reset" style="margin-top:12px">Reset all</button></div>
+  <div class="panel"><h2>3. Creator tools</h2>
+   <div class="tools">
+    <button type="button" class="tool" data-t="bg" aria-pressed="false"><span>1-Tap Background Remover</span><span class="st">Demo</span><i class="spin"></i></button>
+    <button type="button" class="tool" data-t="crop" aria-pressed="false"><span>Auto-Crop (Instagram 4:5)</span><span class="st">Off</span><i class="spin"></i></button>
+    <button type="button" class="tool" data-t="skin" aria-pressed="false"><span>Skin Glow Filter</span><span class="st">Off</span><i class="spin"></i></button></div>
+   <p class="note">Auto-Crop and Skin Glow are applied for real. Background Remover is a simulated demo of the pipeline.</p></div>
+  <div class="panel"><h2>4. Elevate your look</h2>
+   <div class="seg" id="seg" role="group" aria-label="Sub-aesthetic archetype"></div>
+   <article class="advice" id="advice" aria-live="polite"></article></div>
+ </div></div></div>
+
+<section class="wrap shop" id="shop" aria-labelledby="sh"><p class="eyebrow">Shoppable pieces</p><h2 id="sh" style="font-size:clamp(28px,4vw,44px)">Find These Pieces Locally &amp; Online</h2>
+ <p class="note" id="shopnote"></p><div class="grid" id="grid"></div>
+ <nav class="finder" id="finder" aria-label="Retail finders"></nav>
+ <p class="note">Sample listings and prices for layout purposes. Affiliate links are marked sponsored and may earn a commission.</p></section>
+</main>
+<footer><div class="wrap">© Digistar Frame - AlterZinc · Photos are processed locally in your browser.</div></footer>
+
+<div class="bar" role="region" aria-label="Export actions"><button type="button" class="cta" id="dl">Download Ready Image</button><button type="button" id="share">Share to Story</button></div>
+<div id="modal" role="dialog" aria-modal="true" aria-label="Exported image"><img id="out" alt="Your edited photo"><div style="display:flex;gap:8px"><a class="btn cta" id="dla" download="digistar-look.png">Download PNG</a><button type="button" id="close">Close</button></div><p class="note">If the download doesn't start, right-click or long-press the image to save.</p></div>
+
+<script>
+/* ============ CONFIG ============ */
+const AFFILIATE_ID='YOUR_AFFILIATE_ID'; // replace with your network ID; appended to outbound links
+
+/* ============ STATE ============ */
+const $=id=>document.getElementById(id), cv=$('cv'), ctx=cv.getContext('2d');
+const NEUTRAL={exp:0,con:0,sat:0,warm:0,grain:0,vig:0,flash:0};
+const PRESETS={street:{exp:-5,con:25,sat:-20,warm:-8,grain:40,vig:30,flash:0},minimal:{exp:8,con:-8,sat:-30,warm:0,grain:0,vig:0,flash:0},
+ golden:{exp:6,con:8,sat:15,warm:45,grain:10,vig:15,flash:0},y2k:{exp:12,con:30,sat:25,warm:5,grain:15,vig:35,flash:40}};
+const P={...NEUTRAL}, flags={bg:false,crop:false,skin:false};
+let source=null, noise=null, noiseN=0;
+const SLIDERS=[['exp','Exposure'],['con','Contrast'],['sat','Saturation'],['warm','Warmth']];
+
+/* ============ IMAGE SOURCE ============ */
+/** Draws a demo scene so sliders are visible before upload. */
+function makeDemo(){const c=document.createElement('canvas');c.width=800;c.height=1000;const g=c.getContext('2d');
+ const gr=g.createLinearGradient(0,0,0,1000);gr.addColorStop(0,'#7f95b5');gr.addColorStop(1,'#c9b9a3');g.fillStyle=gr;g.fillRect(0,0,800,1000);
+ g.fillStyle='#d9a98a';g.beginPath();g.arc(400,300,70,0,7);g.fill();
+ g.fillStyle='#3d4a3a';g.fillRect(310,380,180,330);g.fillStyle='#22262b';g.fillRect(325,710,70,240);g.fillRect(405,710,70,240);
+ g.fillStyle='#e8dcc8';g.fillRect(0,950,800,50);return c;}
+source=makeDemo();
+/** Loads a user file (JPEG/PNG only) into `source`. */
+function loadFile(f){if(!f||!/^image\/(jpeg|png)$/.test(f.type)){$('msg').textContent='Please choose a JPEG or PNG file.';return;}
+ const i=new Image();i.onload=()=>{source=i;$('msg').textContent='Photo loaded: '+f.name;render();};i.src=URL.createObjectURL(f);}
+/** Returns a canvas of the source (cropped to 4:5 if enabled), scaled so its longest side <= max. */
+function getBase(max){const sw=source.width,sh=source.height;let sx=0,sy=0,w=sw,h=sh;
+ if(flags.crop){const r=.8;if(sw/sh>r){w=sh*r;sx=(sw-w)/2;}else{h=sw/r;sy=(sh-h)/2;}}
+ const s=Math.min(1,max/Math.max(w,h)),c=document.createElement('canvas');c.width=Math.round(w*s);c.height=Math.round(h*s);
+ c.getContext('2d').drawImage(source,sx,sy,w,h,0,0,c.width,c.height);return c;}
+
+/* ============ PIPELINE ============ */
+/** Applies exposure, contrast, saturation, warmth, skin glow, flash, vignette and grain in place. */
+function process(c){const g=c.getContext('2d'),W=c.width,H=c.height,im=g.getImageData(0,0,W,H),d=im.data;
+ const m=1+P.exp/100,k=1+P.con/100,sa=1+P.sat/100,wm=P.warm*.3;
+ if(P.grain&&noiseN!==W*H){noiseN=W*H;noise=new Int8Array(noiseN);for(let i=0;i<noiseN;i++)noise[i]=(Math.random()*254-127)|0;}
+ for(let p=0,i=0;p<d.length;p+=4,i++){let r=d[p]*m,gg=d[p+1]*m,b=d[p+2]*m;
+  r=(r-128)*k+128;gg=(gg-128)*k+128;b=(b-128)*k+128;
+  const l=.299*r+.587*gg+.114*b;r=l+(r-l)*sa;gg=l+(gg-l)*sa;b=l+(b-l)*sa;r+=wm;b-=wm;
+  if(flags.skin&&r>gg&&gg>b&&r>90){r+=10;gg+=7;b+=4;}
+  if(P.vig||P.flash){const x=(i%W)/W-.5,y=((i/W)|0)/H-.5,dd=Math.sqrt(x*x+y*y)*1.41;
+   const f=1-P.vig/100*dd*dd*.8+P.flash/100*(1-dd)*.25;r*=f;gg*=f;b*=f;}
+  if(P.grain){const n=noise[i]/127*P.grain*.5;r+=n;gg+=n;b+=n;}
+  d[p]=r;d[p+1]=gg;d[p+2]=b;}
+ g.putImageData(im,0,0);}
+let raf=0;
+/** Re-renders the preview (throttled to animation frames). */
+function render(orig){cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{const b=getBase(1000);if(!orig)process(b);
+ cv.width=b.width;cv.height=b.height;ctx.drawImage(b,0,0);});}
+
+/* ============ CONTROLS ============ */
+SLIDERS.forEach(([k,n])=>{$('sliders').insertAdjacentHTML('beforeend',`<label for="s-${k}" class="row"><span>${n}</span><span id="v-${k}">0</span></label><input type="range" id="s-${k}" min="-100" max="100" value="0">`);
+ $('s-'+k).oninput=e=>{P[k]=+e.target.value;$('v-'+k).textContent=P[k];clearPreset();render();};});
+function syncSliders(){SLIDERS.forEach(([k])=>{$('s-'+k).value=P[k];$('v-'+k).textContent=P[k];});}
+function clearPreset(){document.querySelectorAll('#tray button').forEach(b=>b.setAttribute('aria-pressed','false'));}
+document.querySelectorAll('#tray button').forEach(b=>b.onclick=()=>{clearPreset();b.setAttribute('aria-pressed','true');Object.assign(P,PRESETS[b.dataset.f]);syncSliders();render();});
+$('reset').onclick=()=>{Object.assign(P,NEUTRAL);syncSliders();clearPreset();render();};
+const hold=$('hold');['pointerdown','keydown'].forEach(e=>hold.addEventListener(e,ev=>{if(ev.type==='keydown'&&ev.key!==' '&&ev.key!=='Enter')return;render(true);}));
+['pointerup','pointerleave','keyup','blur'].forEach(e=>hold.addEventListener(e,()=>render()));
+
+/** Utility toggles: show a loading state, then a success state (mimics a production pipeline). */
+document.querySelectorAll('.tool').forEach(b=>b.onclick=()=>{const t=b.dataset.t,on=b.getAttribute('aria-pressed')!=='true',st=b.querySelector('.st');
+ b.setAttribute('aria-busy','true');st.textContent='Processing…';
+ setTimeout(()=>{b.removeAttribute('aria-busy');flags[t]=on;b.setAttribute('aria-pressed',on);st.textContent=on?'✓ Applied':(t==='bg'?'Demo':'Off');
+  $('msg').textContent=b.firstElementChild.textContent+(on?' applied.':' removed.');render();},t==='bg'?1400:700);});
+
+/* ============ ARCHETYPES + SHOP ============ */
+const ARCH={
+ berlin:{name:'Berlin Utility Workwear',tag:'Functional, tonal, worn-in.',pal:['#2e2e2b','#4a4d3f','#8b8670','#d6d0bd'],
+  kw:['Boiler suit','Cargo layers','Chore jacket','Tonal olive','Heavy canvas'],
+  tips:['Stay in one tonal family and vary texture, not colour.','Pair a boxy chore jacket with relaxed, slightly cropped trousers.','Add one hardware detail: a utility belt, steel watch or chunky boot.'],
+  formula:'Chore jacket + cargo trouser + heavy boot + canvas tote',
+  items:[['Canvas chore jacket','jacket','#4a4d3f','$129','Online only','SSENSE','https://www.ssense.com/'],['Relaxed cargo trousers','trousers','#2e2e2b','$98','Local pickup possible','Farfetch','https://www.farfetch.com/'],['Waxed canvas tote','bag','#8b8670','$64','Ships in 2–4 days','ASOS','https://www.asos.com/']],
+  finders:[['Streetwear Retailer Finder','streetwear store near me'],['Workwear Shops Near Me','workwear store near me']]},
+ paris:{name:'Paris Tailoring',tag:'Sharp lines, quiet confidence.',pal:['#efe9dd','#1c2233','#b08a5b','#111111'],
+  kw:['Oversized blazer','Straight-leg trouser','Trench','Ballet flat','Silk scarf'],
+  tips:['Choose one strong tailored piece and keep the rest simple.','Roll the blazer sleeves and leave the shirt slightly undone.','Keep jewellery small and the bag structured.'],
+  formula:'Blazer + straight trouser + loafer + structured bag',
+  items:[['Wool single-breasted blazer','jacket','#1c2233','$240','Check stores near you','SSENSE','https://www.ssense.com/'],['Pleated straight trousers','trousers','#b08a5b','$150','Local pickup possible','Farfetch','https://www.farfetch.com/'],['Structured top-handle bag','bag','#111111','$310','Online only','ASOS','https://www.asos.com/']],
+  finders:[['Tailoring Boutique Finder','tailoring boutique near me'],['Designer Resale Near Me','designer consignment store near me']]},
+ y2k:{name:'Y2K Retro',tag:'Glossy, playful, low-slung.',pal:['#bfd8f2','#c9ccd1','#ff5fa8','#ffffff'],
+  kw:['Low-rise denim','Baby tee','Mini shoulder bag','Rhinestones','Wrap sunglasses'],
+  tips:['Mix one glossy piece with one washed denim piece.','Keep proportions cropped on top and low on the waist.','Finish with a tiny bag and a bold accessory.'],
+  formula:'Baby tee + low-rise denim + mini bag + wrap sunglasses',
+  items:[['Cropped zip jacket','jacket','#bfd8f2','$85','Ships in 2–4 days','ASOS','https://www.asos.com/'],['Low-rise wide denim','trousers','#7f95b5','$72','Local pickup possible','Farfetch','https://www.farfetch.com/'],['Mini baguette bag','bag','#ff5fa8','$58','Online only','SSENSE','https://www.ssense.com/']],
+  finders:[['Vintage Y2K Stores Near Me','vintage y2k clothing store near me'],['Streetwear Retailer Finder','streetwear store near me']]}};
+const SH={jacket:'M30 20L45 12Q60 24 75 12L90 20L105 45L92 52L90 105H30L28 52L15 45Z',trousers:'M35 12H85L90 108H66L60 50L54 108H30Z',bag:'M30 45H90L96 105H24Z M45 45V32Q60 12 75 32V45'};
+/** Builds an inline SVG thumbnail (no external images needed). */
+function thumb(kind,col){const s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#f1f1f1"/><path d="${SH[kind]}" fill="${col}" stroke="#000" stroke-width="1.5" fill-rule="evenodd"/></svg>`;return 'data:image/svg+xml;utf8,'+encodeURIComponent(s);}
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/** Renders the advice panel and affiliate cards for an archetype key. */
+function showArch(key){const a=ARCH[key];
+ document.querySelectorAll('#seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===key));
+ $('advice').innerHTML=`<p class="eyebrow">Trend notes · inspired by popular Pinterest boards</p><h3>${a.name}</h3><p>${a.tag}</p>
+ <span class="lab">Palette</span><div class="pal">${a.pal.map(c=>`<span style="background:${c}" title="${c}"></span>`).join('')}</div>
+ <span class="lab">Trending keywords</span><ul class="chips">${a.kw.map(k=>`<li>${k}</li>`).join('')}</ul>
+ <span class="lab">Outfit formula</span><p>${a.formula}</p><span class="lab">Styling tips</span><ul class="tips">${a.tips.map(t=>`<li>${t}</li>`).join('')}</ul>
+ <p class="note">Editorial summary, not live Pinterest analytics.</p>`;
+ $('shopnote').textContent='Pieces to recreate: '+a.name+'.';
+ $('grid').innerHTML=a.items.map(([t,k,c,p,loc,r,u])=>`<article class="card"><img src="${thumb(k,c)}" alt="${esc(t)} thumbnail" width="240" height="240"><div><h3>${esc(t)}</h3><span class="price">${p}</span><span class="tag">${loc}</span>
+ <a class="btn cta" href="${u}" data-aff="${r}" data-item="${esc(t)}" target="_blank" rel="sponsored nofollow noopener">${loc.startsWith('Local')||loc.startsWith('Check')?'Check Local Inventory':'Shop Now at '+r}</a></div></article>`).join('');
+ $('finder').innerHTML=a.finders.map(([n,q])=>`<a href="https://www.google.com/maps/search/${encodeURIComponent(q)}" target="_blank" rel="noopener" title="${q}">${n}</a>`).join('');}
+Object.entries(ARCH).forEach(([k,a])=>{const b=document.createElement('button');b.type='button';b.dataset.k=k;b.textContent=a.name;b.onclick=()=>showArch(k);$('seg').append(b);});
+/** Affiliate click tracking: tags the URL and emits an event for your analytics. */
+document.addEventListener('click',e=>{const a=e.target.closest('a[data-aff]');if(!a)return;
+ const u=new URL(a.href);u.searchParams.set('utm_source','digistar_look');u.searchParams.set('utm_medium','affiliate');u.searchParams.set('aff',AFFILIATE_ID);a.href=u;
+ document.dispatchEvent(new CustomEvent('affiliate_click',{detail:{retailer:a.dataset.aff,item:a.dataset.item}}));});
+
+/* ============ EXPORT ============ */
+/** Renders the full-resolution result (max 3000px) as a PNG blob. */
+function exportBlob(){const b=getBase(3000);process(b);return new Promise(r=>b.toBlob(r,'image/png'));}
+$('dl').onclick=async()=>{const bl=await exportBlob(),u=URL.createObjectURL(bl);$('out').src=u;$('dla').href=u;$('modal').style.display='flex';$('dla').focus();};
+$('share').onclick=async()=>{const bl=await exportBlob(),f=new File([bl],'digistar-look.png',{type:'image/png'});
+ if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],title:'Digistar LOOK'});return;}catch(e){if(e.name==='AbortError')return;}}
+ $('dl').click();$('msg').textContent='Sharing isn’t supported here, so save the image and post it from your gallery.';};
+$('close').onclick=()=>{$('modal').style.display='none';$('dl').focus();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('close').click();});
+
+/* ============ UPLOAD ============ */
+$('file').onchange=e=>loadFile(e.target.files[0]);
+const dz=$('drop');['dragenter','dragover'].forEach(n=>dz.addEventListener(n,e=>{e.preventDefault();dz.classList.add('drag');}));
+['dragleave','drop'].forEach(n=>dz.addEventListener(n,e=>{e.preventDefault();dz.classList.remove('drag');}));
+dz.addEventListener('drop',e=>loadFile(e.dataTransfer.files[0]));
+
+showArch('berlin');render();document.fonts.ready.then(()=>{});
+</script></body></html>
