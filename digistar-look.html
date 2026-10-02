@@ -68,7 +68,7 @@ button[aria-pressed=true],button.on{background:#000;color:#fff}
 .card h3{font-size:20px}.price{font:600 14px var(--sans)}
 .tag{align-self:flex-start;border:1px solid #000;padding:3px 8px;font:600 9px var(--sans);letter-spacing:.14em;text-transform:uppercase}
 .card .cta{margin-top:auto}
-.finder{display:flex;flex-wrap:wrap;gap:8px 20px;margin:16px 0 24px}
+.geo{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}.geo input,select{padding:10px;border:1px solid #000;border-radius:0;background:#fff;color:#000;font:400 14px var(--sans)}select{width:100%}.geo input{flex:1;min-width:160px}.sw{display:inline-block;width:14px;height:14px;border:1px solid #000;vertical-align:-2px;margin-right:6px}.card .row2{display:flex;flex-direction:column;gap:6px;margin-top:auto}.finder{display:flex;flex-wrap:wrap;gap:8px 20px;margin:16px 0 24px}
 .finder a{color:inherit;font-weight:600}
 /* sticky action bar */
 .bar{position:fixed;left:0;right:0;bottom:0;background:#f9f9f9;border-top:1px solid #000;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;justify-content:center;z-index:20}
@@ -109,14 +109,15 @@ footer{border-top:1px solid #000;padding:20px 0;font-size:12px}
     <button type="button" class="tool" data-t="skin" aria-pressed="false"><span>Skin Glow Filter</span><span class="st">Off</span><i class="spin"></i></button></div>
    <p class="note">Auto-Crop and Skin Glow are applied for real. Background Remover is a simulated demo of the pipeline.</p></div>
   <div class="panel"><h2>4. Elevate your look</h2>
-   <div class="seg" id="seg" role="group" aria-label="Sub-aesthetic archetype"></div>
+   <label for="trend">Trend (5 current directions)</label><select id="trend"></select><p class="note">Suggestions adapt to the colours and tone of your uploaded photo.</p>
    <article class="advice" id="advice" aria-live="polite"></article></div>
  </div></div></div>
 
 <section class="wrap shop" id="shop" aria-labelledby="sh"><p class="eyebrow">Shoppable pieces</p><h2 id="sh" style="font-size:clamp(28px,4vw,44px)">Find These Pieces Locally &amp; Online</h2>
- <p class="note" id="shopnote"></p><div class="grid" id="grid"></div>
+ <p class="note" id="shopnote" aria-live="polite"></p>
+ <div class="geo"><label for="city" style="margin:0">Your city</label><input type="text" id="city" placeholder="e.g. Paris" autocomplete="address-level2"><button type="button" id="loc">Use my location</button></div><div class="grid" id="grid"></div>
  <nav class="finder" id="finder" aria-label="Retail finders"></nav>
- <p class="note">Sample listings and prices for layout purposes. Affiliate links are marked sponsored and may earn a commission.</p></section>
+ <p class="note">Suggestions are generated from your photo’s colours plus the selected trend, then link to live searches, so prices and stock are shown by the retailer. Affiliate links are marked sponsored and may earn a commission.</p></section>
 </main>
 <footer><div class="wrap">© Digistar Frame - AlterZinc · Photos are processed locally in your browser.</div></footer>
 
@@ -146,7 +147,7 @@ function makeDemo(){const c=document.createElement('canvas');c.width=800;c.heigh
 source=makeDemo();
 /** Loads a user file (JPEG/PNG only) into `source`. */
 function loadFile(f){if(!f||!/^image\/(jpeg|png)$/.test(f.type)){$('msg').textContent='Please choose a JPEG or PNG file.';return;}
- const i=new Image();i.onload=()=>{source=i;$('msg').textContent='Photo loaded: '+f.name;render();};i.src=URL.createObjectURL(f);}
+ const i=new Image();i.onload=()=>{source=i;$('msg').textContent='Photo loaded: '+f.name;refresh();render();};i.src=URL.createObjectURL(f);}
 /** Returns a canvas of the source (cropped to 4:5 if enabled), scaled so its longest side <= max. */
 function getBase(max){const sw=source.width,sh=source.height;let sx=0,sy=0,w=sw,h=sh;
  if(flags.crop){const r=.8;if(sw/sh>r){w=sh*r;sx=(sw-w)/2;}else{h=sw/r;sy=(sh-h)/2;}}
@@ -188,43 +189,92 @@ document.querySelectorAll('.tool').forEach(b=>b.onclick=()=>{const t=b.dataset.t
  setTimeout(()=>{b.removeAttribute('aria-busy');flags[t]=on;b.setAttribute('aria-pressed',on);st.textContent=on?'✓ Applied':(t==='bg'?'Demo':'Off');
   $('msg').textContent=b.firstElementChild.textContent+(on?' applied.':' removed.');render();},t==='bg'?1400:700);});
 
-/* ============ ARCHETYPES + SHOP ============ */
-const ARCH={
- berlin:{name:'Berlin Utility Workwear',tag:'Functional, tonal, worn-in.',pal:['#2e2e2b','#4a4d3f','#8b8670','#d6d0bd'],
-  kw:['Boiler suit','Cargo layers','Chore jacket','Tonal olive','Heavy canvas'],
-  tips:['Stay in one tonal family and vary texture, not colour.','Pair a boxy chore jacket with relaxed, slightly cropped trousers.','Add one hardware detail: a utility belt, steel watch or chunky boot.'],
-  formula:'Chore jacket + cargo trouser + heavy boot + canvas tote',
-  items:[['Canvas chore jacket','jacket','#4a4d3f','$129','Online only','SSENSE','https://www.ssense.com/'],['Relaxed cargo trousers','trousers','#2e2e2b','$98','Local pickup possible','Farfetch','https://www.farfetch.com/'],['Waxed canvas tote','bag','#8b8670','$64','Ships in 2–4 days','ASOS','https://www.asos.com/']],
-  finders:[['Streetwear Retailer Finder','streetwear store near me'],['Workwear Shops Near Me','workwear store near me']]},
- paris:{name:'Paris Tailoring',tag:'Sharp lines, quiet confidence.',pal:['#efe9dd','#1c2233','#b08a5b','#111111'],
-  kw:['Oversized blazer','Straight-leg trouser','Trench','Ballet flat','Silk scarf'],
-  tips:['Choose one strong tailored piece and keep the rest simple.','Roll the blazer sleeves and leave the shirt slightly undone.','Keep jewellery small and the bag structured.'],
-  formula:'Blazer + straight trouser + loafer + structured bag',
-  items:[['Wool single-breasted blazer','jacket','#1c2233','$240','Check stores near you','SSENSE','https://www.ssense.com/'],['Pleated straight trousers','trousers','#b08a5b','$150','Local pickup possible','Farfetch','https://www.farfetch.com/'],['Structured top-handle bag','bag','#111111','$310','Online only','ASOS','https://www.asos.com/']],
-  finders:[['Tailoring Boutique Finder','tailoring boutique near me'],['Designer Resale Near Me','designer consignment store near me']]},
- y2k:{name:'Y2K Retro',tag:'Glossy, playful, low-slung.',pal:['#bfd8f2','#c9ccd1','#ff5fa8','#ffffff'],
-  kw:['Low-rise denim','Baby tee','Mini shoulder bag','Rhinestones','Wrap sunglasses'],
-  tips:['Mix one glossy piece with one washed denim piece.','Keep proportions cropped on top and low on the waist.','Finish with a tiny bag and a bold accessory.'],
-  formula:'Baby tee + low-rise denim + mini bag + wrap sunglasses',
-  items:[['Cropped zip jacket','jacket','#bfd8f2','$85','Ships in 2–4 days','ASOS','https://www.asos.com/'],['Low-rise wide denim','trousers','#7f95b5','$72','Local pickup possible','Farfetch','https://www.farfetch.com/'],['Mini baguette bag','bag','#ff5fa8','$58','Online only','SSENSE','https://www.ssense.com/']],
-  finders:[['Vintage Y2K Stores Near Me','vintage y2k clothing store near me'],['Streetwear Retailer Finder','streetwear store near me']]}};
-const SH={jacket:'M30 20L45 12Q60 24 75 12L90 20L105 45L92 52L90 105H30L28 52L15 45Z',trousers:'M35 12H85L90 108H66L60 50L54 108H30Z',bag:'M30 45H90L96 105H24Z M45 45V32Q60 12 75 32V45'};
-/** Builds an inline SVG thumbnail (no external images needed). */
+/* ============ PHOTO ANALYSIS ============ */
+const toHsl=(r,g,b)=>{r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,df=mx-mn;let h=0,s=0;
+ if(df){s=df/(1-Math.abs(2*l-1));h=mx===r?((g-b)/df)%6:mx===g?(b-r)/df+2:(r-g)/df+4;h=(h*60+360)%360;}return[h,s,l];};
+const toHex=(h,s,l)=>{h=(h%360+360)%360;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));
+ return '#'+[f(0),f(8),f(4)].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('');};
+/** Gives an approximate fashion colour name for an HSL value. */
+function nameColor(h,s,l){if(l<.13)return'black';if(l>.9)return'ivory';
+ if(s<.12)return l<.32?'charcoal':l<.6?'stone grey':'oatmeal';
+ if(h<15||h>=345)return l<.4?'burgundy':'red';
+ if(h<42)return s<.4?'camel':l<.4?'rust':'terracotta';
+ if(h<65)return l>.65?'butter yellow':'mustard';
+ if(h<150)return s<.3?'sage':h<95&&l<.5?'olive':'green';
+ if(h<195)return'teal';
+ if(h<255)return l<.3?'navy':l>.72?'icy blue':'cobalt';
+ if(h<295)return l>.7?'lavender':'plum';
+ return l>.7?'blush':'magenta';}
+let AN=null;
+/** Reads the current photo: dominant colours, brightness, saturation and warmth. Runs fully on-device. */
+function analyze(){const c=document.createElement('canvas');c.width=c.height=48;const g=c.getContext('2d');g.drawImage(source,0,0,48,48);
+ const px=g.getImageData(0,0,48,48).data,bk={};let L=0,S=0,W=0,n=0;
+ for(let i=0;i<px.length;i+=4){const r=px[i],gg=px[i+1],b=px[i+2],k=(r>>5)+','+(gg>>5)+','+(b>>5),o=bk[k]||(bk[k]={n:0,r:0,g:0,b:0});
+  o.n++;o.r+=r;o.g+=gg;o.b+=b;const[h,s,l]=toHsl(r,gg,b);L+=l;S+=s;W+=r-b;n++;}
+ const list=Object.values(bk).sort((x,y)=>y.n-x.n).map(o=>[o.r/o.n,o.g/o.n,o.b/o.n]),pick=[];
+ for(const c3 of list){if(pick.every(p=>Math.hypot(p[0]-c3[0],p[1]-c3[1],p[2]-c3[2])>70))pick.push(c3);if(pick.length===3)break;}
+ const cols=pick.map(([r,g,b])=>{const[h,s,l]=toHsl(r,g,b);return{h,s,l,name:nameColor(h,s,l),hex:toHex(h,s,l)};});
+ const lead=cols.slice().sort((a,b)=>b.s-a.s)[0],bright=L/n,sat=S/n,warm=W/n;
+ return{cols,bright,sat,warm,mood:[bright<.38?'Dark':bright>.62?'Light':'Mid-tone',sat<.25?'Muted':sat>.45?'Vivid':'Balanced',warm>12?'Warm':warm<-12?'Cool':'Neutral'],lead};}
+/** Builds the three colour slots used in suggestions: A = match, B = accent, N = balancing neutral. */
+function slots(an){const l=an.lead,A={name:l.name,hex:l.hex};
+ const B=an.sat<.25?{name:nameColor(l.h+180,.55,.45),hex:toHex(l.h+180,.55,.45)}:{name:nameColor(l.h+30,.35,.5),hex:toHex(l.h+30,.35,.5)};
+ const N=an.bright<.38?{name:'ivory',hex:'#efe9dd'}:an.bright>.62?{name:'charcoal',hex:'#2b2b2b'}:{name:'stone grey',hex:'#b5b0a6'};
+ return{A,B,N,ICY:{name:'icy blue',hex:'#bcd7ee'}};}
+
+/* ============ TRENDS (Pinterest Predicts 2026, published Dec 2025) ============ */
+const TRENDS={
+ glam:{n:'Glamoratti',d:'Loud, decadent 1980s-style tailoring with exaggerated shoulders.',kw:['Sculpted shoulders','Funnel neck','Chunky jewellery','Statement outerwear'],
+  tips:['Make a structured {A} blazer the anchor and go a size up on the shoulder.','Layer a funnel-neck piece in {N} underneath.','Finish with one chunky accessory in {B}.'],
+  p:[['{A} structured-shoulder blazer','jacket','A'],['{N} funnel neck sweater','jacket','N'],['{B} chunky statement belt','dot','B']]},
+ poet:{n:'Poetcore',d:'Romantic, literary dressing: ties, brooches, lace and tweed.',kw:['Tie revival','Brooches','Lace','Tweed blazer'],
+  tips:['Start with an {N} oxford shirt and a slim tie.','Add a {A} tweed blazer to echo your photo’s main colour.','Pin one {B} brooch at the lapel.'],
+  p:[['{N} oxford shirt','jacket','N'],['{A} tweed blazer','jacket','A'],['{B} lapel brooch','dot','B']]},
+ khaki:{n:'Khaki Coded',d:'Explorer and paleontologist-inspired utility dressing.',kw:['Utility vest','Cargo trousers','Explorer layers','Canvas'],
+  tips:['Wear a {A} utility vest over a plain base layer.','Pick wide {N} cargo trousers to balance the tone of your photo.','Carry a {B} canvas crossbody for contrast.'],
+  p:[['{A} utility vest','jacket','A'],['{N} wide cargo trousers','trousers','N'],['{B} canvas crossbody bag','bag','B']]},
+ blue:{n:'Cool Blue',d:'Icy, frosty blue tones across clothing and accessories.',kw:['Icy blue','Frost tones','Satin','Tonal dressing'],
+  tips:['Use icy blue as the hero colour and keep your photo’s {A} as the partner tone.','Choose a satin or sheer texture to keep the blues light.','Ground the look with {N}.'],
+  p:[['icy blue satin shirt','jacket','ICY'],['{N} straight trousers','trousers','N'],['icy blue shoulder bag','bag','ICY']]},
+ opera:{n:'Midnight Masquerade',d:'Opera outfits and opulent, dressed-up evening drama.',kw:['Opera outfits','Velvet','Drapery','Opulent jewellery'],
+  tips:['Choose a {A} velvet layer as the statement.','Add drape with satin {N} trousers.','Use {B} jewellery as the single bright note.'],
+  p:[['{A} velvet jacket','jacket','A'],['{N} draped satin trousers','trousers','N'],['{B} statement earrings','dot','B']]}};
+const SH={jacket:'M30 20L45 12Q60 24 75 12L90 20L105 45L92 52L90 105H30L28 52L15 45Z',trousers:'M35 12H85L90 108H66L60 50L54 108H30Z',bag:'M30 45H90L96 105H24Z M45 45V32Q60 12 75 32V45',dot:'M60 30a30 30 0 1 0 .1 0Z'};
+const RET=[['SSENSE','https://www.ssense.com/en-us/search?q='],['Farfetch','https://www.farfetch.com/shopping/women/search/items.aspx?q='],['ASOS','https://www.asos.com/search/?q=']];
+const GEO={city:'',lat:null,lng:null};
+/** Inline SVG thumbnail tinted with the suggested colour. */
 function thumb(kind,col){const s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#f1f1f1"/><path d="${SH[kind]}" fill="${col}" stroke="#000" stroke-width="1.5" fill-rule="evenodd"/></svg>`;return 'data:image/svg+xml;utf8,'+encodeURIComponent(s);}
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-/** Renders the advice panel and affiliate cards for an archetype key. */
-function showArch(key){const a=ARCH[key];
- document.querySelectorAll('#seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===key));
- $('advice').innerHTML=`<p class="eyebrow">Trend notes · inspired by popular Pinterest boards</p><h3>${a.name}</h3><p>${a.tag}</p>
- <span class="lab">Palette</span><div class="pal">${a.pal.map(c=>`<span style="background:${c}" title="${c}"></span>`).join('')}</div>
- <span class="lab">Trending keywords</span><ul class="chips">${a.kw.map(k=>`<li>${k}</li>`).join('')}</ul>
- <span class="lab">Outfit formula</span><p>${a.formula}</p><span class="lab">Styling tips</span><ul class="tips">${a.tips.map(t=>`<li>${t}</li>`).join('')}</ul>
- <p class="note">Editorial summary, not live Pinterest analytics.</p>`;
- $('shopnote').textContent='Pieces to recreate: '+a.name+'.';
- $('grid').innerHTML=a.items.map(([t,k,c,p,loc,r,u])=>`<article class="card"><img src="${thumb(k,c)}" alt="${esc(t)} thumbnail" width="240" height="240"><div><h3>${esc(t)}</h3><span class="price">${p}</span><span class="tag">${loc}</span>
- <a class="btn cta" href="${u}" data-aff="${r}" data-item="${esc(t)}" target="_blank" rel="sponsored nofollow noopener">${loc.startsWith('Local')||loc.startsWith('Check')?'Check Local Inventory':'Shop Now at '+r}</a></div></article>`).join('');
- $('finder').innerHTML=a.finders.map(([n,q])=>`<a href="https://www.google.com/maps/search/${encodeURIComponent(q)}" target="_blank" rel="noopener" title="${q}">${n}</a>`).join('');}
-Object.entries(ARCH).forEach(([k,a])=>{const b=document.createElement('button');b.type='button';b.dataset.k=k;b.textContent=a.name;b.onclick=()=>showArch(k);$('seg').append(b);});
+const fill=(s,sl)=>s.replace(/\{(\w+)\}/g,(m,k)=>sl[k].name);
+/** Google Maps search URL; uses coordinates if the user shared their location, else the city text. */
+function mapsUrl(q){const where=GEO.city?' near '+GEO.city:' near me',base='https://www.google.com/maps/search/'+encodeURIComponent(q+where);
+ return GEO.lat!=null&&!GEO.city?base+'/@'+GEO.lat+','+GEO.lng+',13z':base;}
+/** Renders advice + shoppable cards from the photo analysis and the selected trend. */
+function showTrend(){const t=TRENDS[$('trend').value],sl=slots(AN),where=GEO.city?'in '+GEO.city:'near you';
+ $('advice').innerHTML=`<p class="eyebrow">Based on your photo · ${t.n}</p><h3>${t.n}</h3><p>${t.d}</p>
+ <span class="lab">What we read in your photo</span><div class="pal">${AN.cols.map(c=>`<span style="background:${c.hex}" title="${c.name}"></span>`).join('')}</div>
+ <p class="note">Dominant tones: ${AN.cols.map(c=>c.name).join(', ')}</p><ul class="chips">${AN.mood.map(m=>`<li>${m}</li>`).join('')}</ul>
+ <span class="lab">Suggested colours to add</span><p><span class="sw" style="background:${sl.B.hex}"></span>${sl.B.name} accent &nbsp; <span class="sw" style="background:${sl.N.hex}"></span>${sl.N.name} balance</p>
+ <span class="lab">Trend keywords</span><ul class="chips">${t.kw.map(k=>`<li>${k}</li>`).join('')}</ul>
+ <span class="lab">Alternative styling for this photo</span><ul class="tips">${t.tips.map(x=>`<li>${fill(x,sl)}</li>`).join('')}</ul>
+ <p class="note">Colour and tone are read on your device. Trend direction: Pinterest Predicts 2026 (Dec 2025). It does not identify garments.</p>`;
+ $('shopnote').textContent=`Pieces for ${t.n}, matched to your photo’s ${AN.cols[0].name} palette.`;
+ $('grid').innerHTML=t.p.map(([tpl,k,s],i)=>{const title=fill(tpl,sl),q=title,[r,u]=RET[i%3];
+  return `<article class="card"><img src="${thumb(k,sl[s].hex)}" alt="${esc(title)} thumbnail" width="240" height="240"><div><h3>${esc(title)}</h3>
+  <span class="price">Live price at retailer</span><span class="tag">Stores ${where}</span>
+  <div class="row2"><a class="btn cta" href="${u}${encodeURIComponent(q)}" data-aff="${r}" data-item="${esc(title)}" target="_blank" rel="sponsored nofollow noopener">Shop Now at ${r}</a>
+  <a class="btn" href="${mapsUrl(q+' store')}" target="_blank" rel="noopener" title="${esc(q)} stores ${where}">Check Local Inventory</a></div></div></article>`;}).join('');
+ const q1=t.n+' fashion store',q2=t.kw[0]+' clothing';
+ $('finder').innerHTML=[['Streetwear Retailer Finder','streetwear store'],[t.n+' Boutique Finder',q1],[t.kw[0]+' Shops '+where,q2]].map(([n,q])=>`<a href="${mapsUrl(q)}" target="_blank" rel="noopener">${n}</a>`).join('');}
+Object.entries(TRENDS).forEach(([k,t])=>$('trend').add(new Option(t.n,k)));
+$('trend').onchange=showTrend;
+$('city').oninput=e=>{GEO.city=e.target.value.trim();showTrend();};
+$('loc').onclick=()=>{if(!navigator.geolocation){$('msg').textContent='Location isn’t available. Type your city instead.';return;}
+ navigator.geolocation.getCurrentPosition(p=>{GEO.lat=+p.coords.latitude.toFixed(3);GEO.lng=+p.coords.longitude.toFixed(3);GEO.city='';$('city').value='';showTrend();$('shopnote').textContent+=' Using your location.';},
+  ()=>{$('msg').textContent='Location permission denied. Type your city instead.';});};
+/** Re-reads the photo and refreshes advice and shop cards. */
+function refresh(){AN=analyze();showTrend();}
+
 /** Affiliate click tracking: tags the URL and emits an event for your analytics. */
 document.addEventListener('click',e=>{const a=e.target.closest('a[data-aff]');if(!a)return;
  const u=new URL(a.href);u.searchParams.set('utm_source','digistar_look');u.searchParams.set('utm_medium','affiliate');u.searchParams.set('aff',AFFILIATE_ID);a.href=u;
@@ -246,5 +296,5 @@ const dz=$('drop');['dragenter','dragover'].forEach(n=>dz.addEventListener(n,e=>
 ['dragleave','drop'].forEach(n=>dz.addEventListener(n,e=>{e.preventDefault();dz.classList.remove('drag');}));
 dz.addEventListener('drop',e=>loadFile(e.dataTransfer.files[0]));
 
-showArch('berlin');render();document.fonts.ready.then(()=>{});
+refresh();render();document.fonts.ready.then(()=>{});
 </script></body></html>
